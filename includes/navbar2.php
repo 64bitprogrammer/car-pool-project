@@ -34,15 +34,7 @@
         <li <?=$current_page=='about'?"class='active'":"";?> ><a href="#">About Us</a></li>
         <li <?=$current_page=='signup'?"class='active'":"";?> ><a href="#">Sign-Up</a></li>
         <li <?=$current_page=='login'?"class='active'":"";?> ><a href="#">Log-In</a></li>
-        
       </ul>
-      <!-- <form class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input class="form-control" placeholder="Search" type="text">
-        </div>
-        <button type="submit" class="btn btn-outline-primary">Submit</button>
-      </form> -->
-
     </div>
   </div>
 </nav>

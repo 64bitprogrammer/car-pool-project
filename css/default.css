@@ -1,5 +1,70 @@
-.header-logo{
-    background-color:orangered; 
-    height: 100px;
+/* header css*/
+.site-header{
+    background-color:lightgray;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
+.header-text{
+    margin-left: 20px;
+    color: black !important;
+}
+
+.spl-header{
+    font-family: 'Courier', Times, serif;
+}
+
+html,body{
+   height:100%;
+   background-color:lightgrey;
+}
+
+.show-panel{
+    color:red;
+    background-color: gold;
+}
+
+/*.my-rows{
+    border: solid 1px;
+}*/
+
+/* footer css */
+.site-footer{
+    width: 100%;
+    min-height: 60px;
+    background-color: black;
+    color:white;
+    text-align: center;
+}
+
+/*
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body {
+  position: relative;
+  background-color: #ccc;
+  margin: 0;
+  padding-bottom: 6rem;
+  min-height: 100%;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+.page-footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 1rem;
+  background-color: black;
+  text-align: center;
+}
+*/
