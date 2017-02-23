@@ -29,7 +29,7 @@
             <li><a href="#">Help</a></li>
           </ul>
         </li>
-        <li <?=$current_page=='faq'?"class='active'":"";?> ><a href="#">FAQ</a></li>
+        <li <?=$current_page=='faq'?"class='active'":"";?> ><a href="#faq">FAQ</a></li>
         <li <?=$current_page=='contact'?"class='active'":"";?> ><a href="#">Contact</a></li>
         <li <?=$current_page=='about'?"class='active'":"";?> ><a href="#">About Us</a></li>
         <li <?=$current_page=='signup'?"class='active'":"";?> ><a href="#">Sign-Up</a></li>

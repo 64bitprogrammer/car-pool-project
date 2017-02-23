@@ -22,21 +22,18 @@ $current_page = "home";
       </div>
       <hr>
       <br>
-      <div class="row">
-          <div class="col-sm-4 show-panel">
-            <h3 align="center" class="spl-header"> Easy To Use </h3>
-            <p><img src="images/1.png" width="270" height="300" align="center"></p>
-          </div>
-          <div class="col-sm-4 show-panel">
-            <h3 align="center" class="spl-header"> Save Fuel </h3>
-            <p><img src="images/1.png" width="270" height="300" align="center"></p>
-          </div>
-          <div class="col-sm-4 show-panel">
-            <h3 align="center" class="spl-header"> Go Green </h3>
-            <p><img src="images/1.png" width="270" height="300" align="center"></p>
-          </div>
-      </div>
-    </div>
+      <?php require_once('includes/features.php'); ?>
+      <hr>
+      <br>
+      <h3 align="center" id="faq"> Frequently Asked Questions </h3><br>
+      <?php require_once('includes/faq.php'); ?>
+      <hr>
+      <br>
+      <?php require_once('includes/contacts.php'); ?>
+      <hr>
+      <br>
+      <?php require_once('includes/about.php'); ?>
+    </div> <!-- end of center column -->
 
     <div class="col-sm-2 my-rows"></div>
   </div> <!-- end of row -->
