@@ -7,7 +7,7 @@
 
 /*sign up form css */
 .signup-form{
-    min-height: 800px;
+
     padding-left: 10px;
     padding-top: 15px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -42,7 +42,7 @@ html,body{
 
 .my-rows{
     border: solid 0px;
-    min-height: 200px;
+    
 }
 
 /* footer css */
@@ -52,6 +52,10 @@ html,body{
     background-color: black;
     color:white;
     text-align: center;
+}
+
+.signup-form{
+
 }
 
 /*

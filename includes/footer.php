@@ -1,3 +1,4 @@
+<!-- Footer added here -->
 <div class="site-footer" id="site-footer">
   <strong>Example.com &copy; All Rights Reserved 2016 - <?=date("Y");?></strong>
 </div>

@@ -1,0 +1,117 @@
+
+*{
+    box-sizing: border-box;
+}
+
+body{
+    margin: 0px;
+    background-color:purple;
+}
+
+.text{
+    padding: 10%;
+}
+
+.mycontainer{
+    background-color: pink;
+    margin:0px;
+    width: 100%;
+}
+
+.mywrapper{
+    overflow: hidden;
+    width: 100%;
+}
+
+.gridbox{
+    background-color: red;
+    margin-right: 2%;
+    margin-bottom: 2%;
+    float: left;
+}
+
+.menu{
+
+    background-color:limegreen;
+    width:100%;
+    float: left;
+    overflow: visible;
+}
+
+.left-menu{
+    background-color: aqua;
+    width: 21%;
+}
+
+.right-menu{
+    background-color: orange;
+    width: 21%;
+    margin-right: 0%;
+}
+
+.right{
+    padding: 4%;
+}
+
+.main{
+    background-color: yellow;
+    height: 0%;
+    width: 54%;
+}
+
+.footer{
+    background-color: orangered;
+    width: 100%;
+    margin-bottom:0px;
+}
+
+.border{
+    border: solid 0.3px;
+}
+
+.menu-item{
+    background-color: skyblue;
+    padding-left: 0px;
+    padding-bottom: 3%;
+    cursor:pointer;
+    border: dotted 0.3px;
+}
+
+.menu-item:hover{
+    background-color: lightblue;
+    text-decoration: underline;
+}
+
+.footer-text{
+    padding: 2%;
+}
+
+.header-text{
+    padding:2%;
+}
+
+@media only screen and (max-width: 400px) {
+    body {
+        background-color: grey;
+    }
+
+    .gridbox {
+        margin-right: 0;
+        margin-bottom: 1em;
+        float: left;
+    }
+
+    .left-menu{
+        width: 100%;
+    }
+
+    .main{
+        width: 100%;
+    }
+
+    .right-menu{
+        width: 100%;
+    }
+
+
+}

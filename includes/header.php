@@ -12,8 +12,7 @@
 </head>
 <!-- Body starts -->
 <body>
-	<div class="my-container">
-  	<div class="jumbotron site-header">
-				<h1 class="header-text"> <img width="75" height="75" src="images/icons/terror.png"> Code Project </h1>
-  	</div>
-	</div>
+<!-- navbar -->
+<div class="mycontainer">
+    <?php require_once('includes/navbar.php'); ?>
+</div>
