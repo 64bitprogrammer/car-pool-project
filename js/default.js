@@ -1,12 +1,135 @@
 // execute all code on loading the entire page
 // store code / call function from block below
 $(document).ready(function(){
-    
-    $("#btn").click(function(){
-        $("div").toggle();
-    });
-    console.log("Document Loaded");
-    console.error("Document Loaded");
-    console.info("Document Loaded");
-    console.warn("Document Loaded");
+    loadDefaults();
+});
+
+// function load defaults
+function loadDefaults(){
+    $("#first_name").val("Shrikrishna");
+    $("#last_name").val("Shanbhag");
+    $("#email").val("shri@gmail.com");
+    $("#datepicker").val("11/06/1993");
+    $("#male").prop("checked", true);
+    $("#password").val("Admin@123");
+    $("#confirm_password").val("Admin@123");
+    $('#terms').prop('checked', true);
+}
+
+// Function to reset signup erros
+function resetSignupErrors(str=''){
+    $("#first-name-help").html(str);
+    $("#last-name-help").html(str);
+    $("#email-help").html(str);
+    $("#password-help").html(str);
+    $("#captcha-help").html(str);
+    $("#terms-help").html(str);
+}
+
+
+// Handle form submit for Sign-Up
+
+$("#signup").click(function(){
+
+    resetSignupErrors();
+
+    var errorCount = 0;
+    var text_reg = /^[a-zA-Z ]*$/;
+    var email_reg=/^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,3})+$/;
+    var pass_reg=/(^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$)/;
+    var date_reg = /^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/;
+
+    if($("#first_name").val() == ""){
+        $("#first-name-help").html("First name cannot be empty");
+        $("#first_name").focus();
+        return false;
+    }
+
+    if(!text_reg.test($("#first_name").val())){
+        $("#first-name-help").html("Only alphabets allowed");
+        $("#first_name").focus();
+        return false;
+    }
+
+    if($("#last_name").val() == ""){
+        $("#last-name-help").html("Last name cannot be empty");
+        $("#last_name").focus();
+        return false;
+    }
+
+    if(!text_reg.test($("#last_name").val())){
+        $("#last-name-help").html("Only alphabets allowed");
+        $("#last_name").focus();
+        return false;
+    }
+
+    if($("#email").val() == ""){
+        $("#email-help").html("Email name cannot be empty");
+        $("#email").focus();
+        return false;
+    }
+
+    if(!email_reg.test($("#email").val())){
+        $("#email-help").html("In-correct email format");
+        $("#email").focus();
+        return false;
+    }
+
+    if($('input[name=gender]:checked').length==0){
+        $("#gender-help").html("Select your gender");
+        return false;
+    }
+
+    if($("#datepicker").val() == ""){
+        $("#datepicker-help").html("Please select a date");
+        $("#datepicker").focus();
+        return false;
+    }
+
+    if($("#password").val() == ""){
+        $("#password-help").html("Password name cannot be empty");
+        $("#password").focus();
+        return false;
+    }
+
+    if(!pass_reg.test($("#password").val())){
+        $("#password-help").html("Min 8 chars[1 caps, 1 num, 1 sym]");
+        $("#password").focus();
+        return false;
+    }
+
+    if($("#confirm_password").val() == ""){
+        $("#password-help").html("Please confirm password");
+        $("#confirm_password").focus();
+        return false;
+    }
+
+    if(!($("#confirm_password").val() == $("#password").val())){
+        $("#password-help").html("Passwords do not match");
+        $("#confirm_password").focus();
+        return false;
+    }
+
+    if(!date_reg.test($("#datepicker").val())){
+        $("#datepicker-help").html("In-correct date format");
+        $("#datepicker").focus();
+        return false;
+    }
+
+    if(grecaptcha.getResponse() == ""){
+        $("#captcha-help").html("Please select captcha");
+        $("#captcha-help").focus();
+        return false;
+    }
+
+    if(!$("#terms").is(":checked",true)){
+        $("#terms-help").html("Please accept terms and conditions");
+        $("#terms").focus();
+        return false;
+    }
+
+    if(errorCount==0){
+        alert("submit success !");
+    }
+
 });
