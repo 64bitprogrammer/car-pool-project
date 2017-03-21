@@ -7,7 +7,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 <!-- My custom javascript file  -->
-<script src="js/default.js"></script>
+<script src="js/validation.js"></script>
 
 <!-- Datepicker content -->
 <?php
@@ -19,7 +19,8 @@ $datepickerCode = <<<EOT
 $(document).ready(function(){
     $( "#datepicker" ).datepicker({
         changeMonth: true,
-        changeYear: true
+        changeYear: true,
+        dateFormat: "yy-mm-dd"
     });
 });
 </script>
