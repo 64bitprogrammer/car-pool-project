@@ -1,3 +1,9 @@
+/* verify email page css */
+
+.notification-box{
+  margin:5%;
+}
+
 /* header css*/
 .site-header{
     background-color:gold;

@@ -14,13 +14,13 @@ if ($handle = opendir('.')) {
 
         if ($entry != "." && $entry != "..") {
             if(is_dir($entry)){
-                $style = "style='border:solid 1px;padding:5px;background-color:limegreen;'";
+                $style = "style='border:solid 1px;padding:0px;background-color:grey;'";
             }
             else{
-                $style = "style='border:solid 1px;padding:5px;background-color:orange;'";
+                $style = "";
             }
             if($entry != "index.php"){
-                echo "<tr align='left'> <td> <a href='$entry' $style>$entry</a> <br> <Br> </td> </tr> ";
+                echo "<tr align='left'> <td> <a href='$entry' $style>$entry</a></td> </tr> ";
             }
         }
     }

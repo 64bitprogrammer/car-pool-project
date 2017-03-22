@@ -2,24 +2,53 @@
 // each page will need following variables defined
 session_start();
 require_once('includes/db_connect.php');
+require_once('lib/phpMailer/sendMail.php');
 $pageTitle = "Sign-Up";
 $current_page = "signup";
+$validationMsg = "";
 ?>
 
 <?php
 // Handle form submit in this block
 
-if(isset($_POST['signup-btn']) && $_POST['signup-btn']=="validated"){
-  $timestamp = date('Y-m-d h:m:s');
-  $password_hash = md5($_POST['password']);
-  $insert_query = "insert into shri_users (first_name,last_name,email,password,gender,dob,mobile,sign_up_ip,registered_on) values ('{$_POST['first_name']}','{$_POST['last_name']}','{$_POST['email']}','$password_hash','{$_POST['gender']}','{$_POST['datepicker']}',{$_POST['mobile']},'{$_SERVER['REMOTE_ADDR']}','$timestamp');";
-  $result = mysqli_query($conn,$insert_query);
-  if($result){
-    echo "<h1> Insert Success </h1>";
+if(isset($_POST['signup-btn'])){
+
+  function validateFields(){
+    // [todo] fix here, just testing
+    return true;
+
+    global $conn;
+    if( mysqli_num_rows( mysqli_query($conn,"select * from shri_users where email='{$_POST['email']}' and is_deleted='0'") )>0 ){
+      global $validationMsg;
+      $validationMsg = "Email Already Exists !";
+      return false;
+    }else{
+      global $validationMsg;
+      $validationMsg = "";
+      return true;
+    }
+  }
+
+  if(validateFields()){
+    $timestamp = date('Y-m-d h:m:s');
+    $password_hash = md5($_POST['password']);
+    $insert_query = "insert into shri_users (first_name,last_name,email,password,gender,dob,mobile,sign_up_ip,registered_on) values ('{$_POST['first_name']}','{$_POST['last_name']}','{$_POST['email']}','$password_hash','{$_POST['gender']}','{$_POST['datepicker']}',{$_POST['mobile']},'{$_SERVER['REMOTE_ADDR']}','$timestamp');";
+    $result = mysqli_query($conn,$insert_query);
+    if($result){
+      $recepient = $_POST['email'];
+      $status = sendVerificationMail($recepient,$conn);
+      echo ":$status:";
+      // [todo] redirect to another page with success msg
+    }
+    else{
+      // [todo] redirect to another page with error msg
+      echo "<h1> Error: ". $conn->error ." </h1>";
+    }
   }
   else{
-    echo "<h1> Error: ". $conn->error ." </h1>";
+
   }
+
 }
 ?>
 
@@ -40,7 +69,7 @@ if(isset($_POST['signup-btn']) && $_POST['signup-btn']=="validated"){
                 <div class="col-sm-8 my-rows">
                     <div class="row my-rows">
                         <!-- Innermost row for form -->
-                        <form method="POST" id="signup-form">
+                        <form method="POST" id="signup-form" onsubmit="return validateSignUpForm()">
                         <div class="col-sm-10 my-rows">
                             <div class="row">
                                 <div class="col-sm-6">
@@ -67,7 +96,7 @@ if(isset($_POST['signup-btn']) && $_POST['signup-btn']=="validated"){
                                 <label class="control-label col-sm-2 sr-only" for="email">Email:</label>
                                 <div class="col-sm-12">
                                     <input type="email" class="form-control" name="email" id="email" placeholder="Email Address">
-                                    <span class="text-danger" id="email-help"> </span>
+                                    <span class="text-danger" id="email-help"><?=$validationMsg?></span>
                                 </div>
                             </div>
                             <br><br><br>
@@ -134,8 +163,7 @@ if(isset($_POST['signup-btn']) && $_POST['signup-btn']=="validated"){
                             <Br><br><br>
                             <div class="form-group">
                                 <div class="col-sm-6">
-                                    <input type="button" class="form-control btn btn-primary" name="signup" id="signup" value="Sign-Up" placeholder="Enter email">
-                                    <input type="hidden" name="signup-btn" value="" id="signup-btn">
+                                    <input type="submit" class="form-control btn btn-primary" name="signup-btn" id="signup-btn" value="Sign-Up" placeholder="Enter email">
                                 </div>
                             </div>
                             <br><br><br>
