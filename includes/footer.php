@@ -1,13 +1,13 @@
 <!-- Footer added here -->
 <div class="site-footer" id="site-footer">
-    <strong>Example.com &copy; All Rights Reserved 2016 - <?=date("Y");?></strong>
+    <strong>Carpool.com &copy; All Rights Reserved 2016 - <?=date("Y");?></strong>
 </div>
 <!-- Javascripts -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 <!-- My custom javascript file  -->
-<script src="js/validation.js"></script>
+<script src="<?=$base_url?>js/validation.js"></script>
 
 <!-- Datepicker content -->
 <?php
@@ -20,17 +20,18 @@ $(document).ready(function(){
     $( "#datepicker" ).datepicker({
         changeMonth: true,
         changeYear: true,
-        dateFormat: "yy-mm-dd"
+        dateFormat: "yy-mm-dd",
+        maxDate: "-18y"
     });
 });
 </script>
 EOT;
-if($current_page=="signup"){
+if($current_page=="signup" || $current_page=="login"){
     echo $datepickerCode;
 }
 ?>
 <?php
-if($current_page=='signup'){
+if($current_page=='signup' || $current_page=='verify' || $current_page=='login'){
     echo "<script src='https://www.google.com/recaptcha/api.js'></script>";
 }
 ?>

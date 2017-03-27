@@ -4,6 +4,10 @@ $pageTitle = "Home Page";
 $current_page = "home";
 ?>
 <?php require_once('includes/header.php'); ?>
+<!-- navbar -->
+<div class="mycontainer">
+    <?php require_once('includes/navbar.php'); ?>
+</div>
 <div class="container-fluid">
 
   <div class="row">

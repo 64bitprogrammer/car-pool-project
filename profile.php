@@ -3,8 +3,8 @@
   require_once('includes/validate_user.php');
   require_once('includes/db_connect.php');
 
-  $pageTitle = "Dashboard";
-  $current_page = "dashboard";
+  $pageTitle = "Profile";
+  $current_page = "profile";
 ?>
 <?php require_once('includes/header.php'); ?>
 <!-- navbar -->

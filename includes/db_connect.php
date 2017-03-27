@@ -16,15 +16,15 @@
     }
     else{
 
-      $db_host = "";
+      $db_host = "localhost";
 
-      $username = "";
+      $username = "intecons_int2017";
 
-      $password = "";
+      $password = "Deck141$";
 
-      $dbname = "";
+      $dbname = "intecons_interns2017";
 
-      define("SITE_PATH","http://www.carpool.com/");
+      define("SITE_PATH","https://www.intecons.in/interns2017/shrikrishna/carpool/");
 
     }
 

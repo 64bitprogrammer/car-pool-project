@@ -1,29 +1,24 @@
 <?php
 // each page will need following variables defined
 session_start();
-require_once('includes/db_connect.php');
 require_once('lib/phpMailer/sendMail.php');
+require_once('includes/db_connect.php');
 $pageTitle = "Sign-Up";
 $current_page = "signup";
 $validationMsg = "";
-?>
 
-<?php
 // Handle form submit in this block
 
 if(isset($_POST['signup-btn'])){
 
   function validateFields(){
-    // [todo] fix here, just testing
-    return true;
-
     global $conn;
-    if( mysqli_num_rows( mysqli_query($conn,"select * from shri_users where email='{$_POST['email']}' and is_deleted='0'") )>0 ){
-      global $validationMsg;
+    global $validationMsg;
+    if( mysqli_num_rows( mysqli_query($conn,"select * from shri_carpool_users where email='{$_POST['email']}' and is_deleted='0'") )>0 ){
       $validationMsg = "Email Already Exists !";
       return false;
     }else{
-      global $validationMsg;
+
       $validationMsg = "";
       return true;
     }
@@ -32,23 +27,44 @@ if(isset($_POST['signup-btn'])){
   if(validateFields()){
     $timestamp = date('Y-m-d h:m:s');
     $password_hash = md5($_POST['password']);
-    $insert_query = "insert into shri_users (first_name,last_name,email,password,gender,dob,mobile,sign_up_ip,registered_on) values ('{$_POST['first_name']}','{$_POST['last_name']}','{$_POST['email']}','$password_hash','{$_POST['gender']}','{$_POST['datepicker']}',{$_POST['mobile']},'{$_SERVER['REMOTE_ADDR']}','$timestamp');";
+    $insert_query = "insert into shri_carpool_users (first_name,last_name,email,password,gender,dob,mobile,sign_up_ip,registered_on) values ('{$_POST['first_name']}','{$_POST['last_name']}','{$_POST['email']}','$password_hash','{$_POST['gender']}','{$_POST['datepicker']}',{$_POST['mobile']},'{$_SERVER['REMOTE_ADDR']}','$timestamp');";
     $result = mysqli_query($conn,$insert_query);
     if($result){
       $recepient = $_POST['email'];
+      // Function available in functions.php
       $status = sendVerificationMail($recepient,$conn);
-      echo ":$status:";
-      // [todo] redirect to another page with success msg
+      if($status=="sent"){
+        $status = "Account registration successful. Please verify email by visiting your inbox and clicking on the verification link.";
+        $_SESSION["SIGNUP-MSG"] =
+          "<div class='alert alert-info alert-dismissable'>
+            <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+            <strong>Success!</strong> $status
+          </div>";
+          header("Location:".$base_url."login.php");
+      }
+      else{
+        $status = "Problem sending verification mail. Please visit <a href='".$base_url."verify.php'>here</a> to verify your email";
+        $_SESSION['SIGNUP-MSG'] =
+          "<div class='alert alert-warning alert-dismissable'>
+            <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+            <strong>Warning!</strong> $status
+          </div>";
+        header("Location:".$base_url."login.php");
+      }
     }
     else{
-      // [todo] redirect to another page with error msg
-      echo "<h1> Error: ". $conn->error ." </h1>";
+      $_SESSION['SIGNUP-MSG'] =
+        "<div class='alert alert-error alert-dismissable'>
+          <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+          <strong>Error!</strong> Problem creating account. Please try again later.
+        </div>";
+        header("Location:".$base_url."signup.php");
+      //echo "<h1> Error: ". $conn->error ." </h1>";
     }
   }
   else{
-
+    // [todo] Validation of fields failed set, error messages
   }
-
 }
 ?>
 
@@ -67,6 +83,12 @@ if(isset($_POST['signup-btn'])){
                 <div class="col-sm-2 my-rows"></div>
                 <!-- empty left column -->
                 <div class="col-sm-8 my-rows">
+                  <?php
+                    // if(isset($_SESSION['SIGNUP-MSG'])){
+                    //   echo $_SESSION['SIGNUP-MSG'];
+                    //   unset($_SESSION['SIGNUP-MSG']);
+                    // }
+                  ?>
                     <div class="row my-rows">
                         <!-- Innermost row for form -->
                         <form method="POST" id="signup-form" onsubmit="return validateSignUpForm()">
@@ -93,10 +115,10 @@ if(isset($_POST['signup-btn'])){
                             </div>
                             <br>
                             <div class="form-group">
-                                <label class="control-label col-sm-2 sr-only" for="email">Email:</label>
+                                <label class="control-label col-sm-2 sr-only" for="signup_email">Email:</label>
                                 <div class="col-sm-12">
-                                    <input type="email" class="form-control" name="email" id="email" placeholder="Email Address">
-                                    <span class="text-danger" id="email-help"><?=$validationMsg?></span>
+                                    <input type="email" class="form-control" name="email" id="signup_email" placeholder="Email Address">
+                                    <span class="text-danger" id="signup_email-help"><?=$validationMsg?></span>
                                 </div>
                             </div>
                             <br><br><br>
@@ -116,7 +138,7 @@ if(isset($_POST['signup-btn'])){
                             </div>
                             <br><br>
                             <div class="form-group">
-                                <div class="col-sm-6">
+                                <div class="col-sm-7">
                                     <input type="text" class="form-control" name="datepicker" id="datepicker" placeholder="Birthday YYYY-MM-DD">
                                     <span class="text-danger" id="datepicker-help"></span>
                                 </div>
