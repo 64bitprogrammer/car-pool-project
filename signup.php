@@ -27,14 +27,14 @@ if(isset($_POST['signup-btn'])){
   if(validateFields()){
     $timestamp = date('Y-m-d h:m:s');
     $password_hash = md5($_POST['password']);
-    $insert_query = "insert into shri_carpool_users (first_name,last_name,email,password,gender,dob,mobile,sign_up_ip,registered_on) values ('{$_POST['first_name']}','{$_POST['last_name']}','{$_POST['email']}','$password_hash','{$_POST['gender']}','{$_POST['datepicker']}',{$_POST['mobile']},'{$_SERVER['REMOTE_ADDR']}','$timestamp');";
+    $insert_query = "insert into shri_carpool_users (first_name,last_name,email,password,gender,dob,mobile,sign_up_ip,registered_on,verification_expiry,verification_sent_stamp) values ('{$_POST['first_name']}','{$_POST['last_name']}','{$_POST['email']}','$password_hash','{$_POST['gender']}','{$_POST['datepicker']}',{$_POST['mobile']},'{$_SERVER['REMOTE_ADDR']}',now(),now() + interval 1 hour,now());";
     $result = mysqli_query($conn,$insert_query);
     if($result){
       $recepient = $_POST['email'];
       // Function available in functions.php
       $status = sendVerificationMail($recepient,$conn);
       if($status=="sent"){
-        $status = "Account registration successful. Please verify email by visiting your inbox and clicking on the verification link.";
+        $status = "Account registration successful. Please verify email by visiting your inbox and clicking on the verification link within next hour.";
         $_SESSION["SIGNUP-MSG"] =
           "<div class='alert alert-info alert-dismissable'>
             <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>

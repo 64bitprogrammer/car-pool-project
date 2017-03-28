@@ -1,7 +1,7 @@
 // execute all code on loading the entire page
 // store code / call function from block below
 $(document).ready(function(){
-  loadDefaults();
+  //loadDefaults();
 });
 
 // validate update password page

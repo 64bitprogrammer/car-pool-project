@@ -41,22 +41,32 @@ if(isset($_POST['login-btn'])){
 if(isset($_POST['forgot-btn'])){
   $email = $_POST['forgot-email'];
 
-  $result = mysqli_query($conn,"select * from shri_carpool_users where email='$email' and is_deleted='0'");
+  $result = mysqli_query($conn,"select *,TIMESTAMPDIFF(MINUTE,reset_sent_stamp,now()) as time_diff from shri_carpool_users where email='$email' and is_deleted='0'");
   if(mysqli_num_rows($result)==1){
     $row = mysqli_fetch_assoc($result);
-    $status = sendRecoveryMail($row['user_id'],$conn);
-    if($status =="sent"){
-      $_SESSION['RECOVERY-MSG'] =
-      "<div class='alert alert-info alert-dismissable'>
-        <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
-        <strong>Success!</strong> Account recovery link sent successfully. Please check email.
-      </div>";
+    if($row['reset_sent_stamp']==0 || intval($row['time_diff'])>60){
+      $status = sendRecoveryMail($row['user_id'],$conn);
+      if($status =="sent"){
+        mysqli_query($conn,"update shri_carpool_users set reset_sent_stamp=now(),reset_expiry=now() + interval 1 hour where email='$email' and is_deleted='0'");
+        $_SESSION['RECOVERY-MSG'] =
+        "<div class='alert alert-info alert-dismissable'>
+          <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+          <strong>Success!</strong> Account recovery link sent successfully. Please check email.
+        </div>";
+      }
+      else{
+        $_SESSION['RECOVERY-MSG'] =
+        "<div class='alert alert-warning alert-dismissable'>
+          <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+          <strong>Error!</strong> Could not send recovery mail. Error:[$status]
+        </div>";
+      }
     }
     else{
       $_SESSION['RECOVERY-MSG'] =
       "<div class='alert alert-warning alert-dismissable'>
         <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
-        <strong>Error!</strong> Could not send recovery mail. Error:[$status]
+        <strong>Error!</strong> An reset link was sent recently. Try again later.
       </div>";
     }
   }

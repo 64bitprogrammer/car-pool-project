@@ -8,10 +8,25 @@
     $id= base64_decode($_GET['user']);
     $token= base64_decode($_GET['token']);
 
-    $result = mysqli_query($conn,"select * from shri_carpool_users where user_id=$id and is_deleted='0'");
+    $result = mysqli_query($conn,"select *,TIMESTAMPDIFF(MINUTE,reset_expiry,now()) as time_diff from shri_carpool_users where user_id=$id and is_deleted='0'");
     if(mysqli_num_rows($result)==1){
       $row = mysqli_fetch_assoc($result);
-
+      if($row['recovery_token']=="" || $row["recovery_token"]=="__verified__"){
+        $_SESSION['UPD-PWD-MSG'] =
+        "<div class='alert alert-error alert-dismissable'>
+          <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+          <strong>Error!</strong> Invalid request.
+        </div>";
+        header("Location:".$base_url."login.php");
+      }
+      if(intval($row['time_diff'])>60){
+        $_SESSION['UPD-PWD-MSG'] =
+        "<div class='alert alert-warning alert-dismissable'>
+          <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+          <strong>Error!</strong> The link has expired. Try again !
+        </div>";
+        header("Location:".$base_url."login.php");
+      }
       if($row['recovery_token']!=$token){
         $_SESSION['UPD-PWD-MSG'] =
         "<div class='alert alert-danger alert-dismissable'>

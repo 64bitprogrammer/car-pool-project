@@ -13,22 +13,31 @@ if(isset($_GET['email']) && isset($_GET['token'])){
   $email = $_GET['email'];
   $token = base64_decode($_GET['token']);
 
-  $result = mysqli_query($conn,"select user_id,email_verified,email_token from shri_carpool_users where email='$email' and is_deleted='0'");
-
+  $result = mysqli_query($conn,"select user_id,email_verified,email_token,TIMESTAMPDIFF(MINUTE,now(),verification_expiry) as time_diff from shri_carpool_users where email='$email' and is_deleted='0'");
+  $row = mysqli_fetch_assoc($result);
+  // Calculate time between expiry and now and if expired i.e. timediff > 60 then say retry
+  $time_diff = intval($row['time_diff']);
   if(mysqli_num_rows($result)>=1){
-    $row = mysqli_fetch_assoc($result);
     if(mysqli_num_rows($result)>=1){
       if($row['email_token'] == $token){
 
         if($row['email_verified']=='0'){
-          if(mysqli_query($conn,"update shri_carpool_users set email_verified='1' where user_id={$row['user_id']} and is_deleted='0'")){
-            $alert_type ="success";
-            $notificationMsg = "Email account &nbsp;&nbsp;<code>$email</code>&nbsp;&nbsp; successfully verified !";
+
+          if($time_diff>=0 && $time_diff <=60){
+            if(mysqli_query($conn,"update shri_carpool_users set email_verified='1' where user_id={$row['user_id']} and is_deleted='0'")){
+              $alert_type ="success";
+              $notificationMsg = "Email account &nbsp;&nbsp;<code>$email</code>&nbsp;&nbsp; successfully verified !";
+            }
+            else{
+              $alert_type ="error";
+              $notificationMsg = "Error while updating the verification status".mysqli_error($conn);
+            }
           }
           else{
             $alert_type ="error";
-            $notificationMsg = "Error while updating the verification status".mysqli_error($conn);
+            $notificationMsg = "The verification link has expired. Click to <a href='".$base_url."verify.php' target='_blank'>here</a> try again.";
           }
+
         }
         else{
           $alert_type ="success";
@@ -73,22 +82,38 @@ if(isset($_POST['verify-btn'])){
 
   $result = mysqli_query($conn,"select * from shri_carpool_users where email='$email' and is_deleted='0'");
   $row = mysqli_fetch_assoc($result);
-  if($row['email_verified']=='0'){
-    $status = sendVerificationMail($email,$conn);
-    if($status=="sent"){
-      $notificationBoxContent =
-      "<div class='alert alert-info alert-dismissable'>
-        <a href=''#'' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
-        <strong>Success!</strong> Verification mail sent successfully to &nbsp;<code>$email</code>
-      </div>";
+  if($row['email_verified']=='0' ){
+    $duration = mysqli_fetch_assoc(mysqli_query($conn,"SELECT TIMESTAMPDIFF(MINUTE,verification_sent_stamp,now()) as time_diff from shri_carpool_users where email='$email' and is_deleted='0'"));
+    $dur = intval($duration['time_diff']);
+    // If last mail verification mail was sent more than 60 min ago
+    // only then resent the verification mail
+    if($dur>60){
+      mysqli_query($conn,"update shri_carpool_users set verification_sent_stamp=now() , verification_expiry = now() + interval 1 hour where email='$email' and is_deleted='0'");
+      $status = sendVerificationMail($email,$conn);
+      if($status=="sent"){
+        $notificationBoxContent =
+        "<div class='alert alert-info alert-dismissable'>
+          <a href=''#'' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+          <strong>Success!</strong> Verification mail sent successfully to  &nbsp;<code>$email</code>
+        </div>";
+      }
+      else{
+        $notificationBoxContent =
+        "<div class='alert alert-error alert-dismissable'>
+          <a href=''#'' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+          <strong>Error!</strong> Technical problem in sending verification mail. Try again later .
+        </div>";
+      }
     }
     else{
       $notificationBoxContent =
-      "<div class='alert alert-error alert-dismissable'>
-        <a href=''#'' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
-        <strong>Error!</strong> Technical problem in sending verification mail. Try again later.
+      "<div class='alert alert-warning alert-dismissable'>
+        <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+        <strong>Note!</strong> An verification mail was recently sent. Please try again later.
       </div>";
     }
+
+
   }
   else{
     $notificationBoxContent =
