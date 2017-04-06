@@ -1,0 +1,52 @@
+<?php
+
+require_once('includes/db_connect.php');
+
+if(isset($_POST['doit'])){
+
+if($_POST['email']!=""){
+	if($_POST['email']=='1')
+		mysqli_query($conn,"update shri_carpool_users set email_verified='1'");
+	else
+		mysqli_query($conn,"update shri_carpool_users set email_verified='0'");
+	echo "Email done!";
+}
+
+if($_POST['mobile']!=""){
+	if($_POST['mobile']=='1')
+		mysqli_query($conn,"update shri_carpool_users set mobile_verified='1'");
+	else
+		mysqli_query($conn,"update shri_carpool_users set mobile_verified='0'");
+	echo "Mobile done!";
+}
+
+if($_POST['password']!=""){
+	$a = md5('Admin@123');
+	$b = md5($_POST['password']);
+	if($_POST['password']=='1')
+		mysqli_query($conn,"update shri_carpool_users set password='$a'");
+	else
+		mysqli_query($conn,"update shri_carpool_users set password='$b'");
+	echo "Password done!" . $conn->error;
+}
+
+if($_POST['delete']!=""){
+	if($_POST['delete']=='1')
+		mysqli_query($conn,"update shri_carpool_users set is_deleted='1'");
+	else
+		mysqli_query($conn,"update shri_carpool_users set is_deleted='0'");
+	echo "Mobile done!";
+}
+
+
+}
+
+?>
+
+<form method="post" >
+<input type="text" name="email" placeholder="Email" />
+<input type="text" name="mobile" placeholder="Mobile" />
+<input type="text" name="password" placeholder="Password" />
+<input type="text" name="delete" placeholder="delete" />
+<button type="submit" name="doit">Go</button>
+</form>

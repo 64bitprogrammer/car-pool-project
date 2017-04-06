@@ -1,5 +1,84 @@
 <?php
 
+// function to send message.
+function sendMsg($to=8660032226,$msg='Message Paramater Not Set'){
+    // Account details
+  	$username = 'shrikrishna.shanbhag@intecons.com';
+  	$hash = '96f48a546b0cac491136528aeb9f15b496c68b4b3f6a310fc4d35cb25ad4407';
+    // [todo] hash incorrect add e at start
+
+  	// Message details
+  	$numbers = array($to);
+  	$sender = urlencode('TXTLCL');
+  	$message = rawurlencode($msg);
+
+  	$numbers = implode(',', $numbers);
+
+  	// Prepare data for POST request
+  	$data = array('username' => $username, 'hash' => $hash, 'numbers' => $numbers, "sender" => $sender, "message" => $message);
+
+  	// Send the POST request with cURL
+  	$ch = curl_init('http://api.textlocal.in/send/');
+  	curl_setopt($ch, CURLOPT_POST, true);
+  	curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+  	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  	$response = curl_exec($ch);
+  	curl_close($ch);
+
+    $result = json_decode($response,true);
+
+    if($result['status']=='success'){
+      $myfile = fopen("success.txt", "w") or die("Unable to open file!");
+      fwrite($myfile, ":".var_dump($result).":");
+      return true;
+    }
+    else{
+      // [todo] set error flags properly read $result['errors']['message'] & $result['errors']['code']
+      //echo "<".$result['errors'][0]['message'].">";
+      $myfile = fopen("error.txt", "w") or die("Unable to open file!");
+      fwrite($myfile, ":".$result['errors'][0]['message'].":");
+
+      // Invalid credential error
+      if($result['errors'][0]['code']==3)
+        return true;
+
+      return false;
+    }
+}
+
+// function to generate alerts
+function createAlert($type,$message,$note=''){
+  if($type == "success"){
+    $alertType = "alert-success";
+    if($note=='')
+      $note = "Success! ";
+  }
+  else if($type == "warning"){
+    $alertType = "alert-warning";
+    if($note=='')
+      $note = "Note! ";
+  }
+  else if($type == "info"){
+    $alertType = "alert-info";
+    if($note=='')
+      $note = "Info! ";
+  }
+  else{
+    $alertType = "alert-danger";
+    if($note=='')
+      $note = "Error! ";
+  }
+
+  $alertBox = <<<EOT
+  <div class='alert $alertType alert-dismissable'>
+    <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
+    <strong>$note</strong> $message
+  </div>
+EOT;
+
+  return $alertBox;
+}
+
 // function to send recovery code
 function sendRecoveryMail($userId,$conn){
   global $base_url;

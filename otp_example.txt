@@ -1,0 +1,20 @@
+{
+  "balance": 8,
+  "batch_id": 271856525,
+  "cost": 1,
+  "num_messages": 1,
+  "message": {
+    "num_parts": 1,
+    "sender": "TXTLCL",
+    "content": "Welcome to carpool. Please verify your OTP"
+  },
+  "receipt_url": "",
+  "custom": "",
+  "messages": [
+    {
+      "id": "1116391886",
+      "recipient": 918660032226
+    }
+  ],
+  "status": "success"
+}

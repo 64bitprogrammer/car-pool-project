@@ -30,6 +30,9 @@ if(isset($_POST['signup-btn'])){
     $insert_query = "insert into shri_carpool_users (first_name,last_name,email,password,gender,dob,mobile,sign_up_ip,registered_on,verification_expiry,verification_sent_stamp) values ('{$_POST['first_name']}','{$_POST['last_name']}','{$_POST['email']}','$password_hash','{$_POST['gender']}','{$_POST['datepicker']}',{$_POST['mobile']},'{$_SERVER['REMOTE_ADDR']}',now(),now() + interval 1 hour,now());";
     $result = mysqli_query($conn,$insert_query);
     if($result){
+      // fetch id to create user directory
+      $id_row = mysqli_fetch_assoc(mysqli_query($conn,"select user_id from shri_carpool_users where email='{$_POST['email']}' and is_deleted='0'"));
+      mkdir('users/'.$id_row['user_id']) or die("failed to create");
       $recepient = $_POST['email'];
       // Function available in functions.php
       $status = sendVerificationMail($recepient,$conn);
@@ -54,7 +57,7 @@ if(isset($_POST['signup-btn'])){
     }
     else{
       $_SESSION['SIGNUP-MSG'] =
-        "<div class='alert alert-error alert-dismissable'>
+        "<div class='alert alert-danger alert-dismissable'>
           <a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>
           <strong>Error!</strong> Problem creating account. Please try again later.
         </div>";

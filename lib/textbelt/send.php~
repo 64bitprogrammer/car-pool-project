@@ -1,0 +1,17 @@
+<?php
+$ch = curl_init('https://textbelt.com/text');
+$data = array(
+  'phone'=>'+918147861087',
+  'message'=> 'Hello world',
+  'key'=> 'dc99b44fe1e01093e14470a31fc77e7d8dc22ff9QAYcwHsae9mCgozgZlFX0EU8I',
+);
+
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$response = curl_exec($ch);
+var_dump($response);
+curl_close($ch);
+?>
+

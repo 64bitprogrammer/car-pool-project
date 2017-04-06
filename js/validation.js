@@ -4,6 +4,7 @@ $(document).ready(function(){
   //loadDefaults();
 });
 
+
 // validate update password page
 function validateUpdatePassword(){
   $("#password-help").html("");
