@@ -100,7 +100,10 @@ if(isset($_POST['forgot-btn'])){
         <div class="col-md-2"></div>
         <div class="col-md-8">
           <?php
-
+            if(isset($_SESSION['GLOBAL-MSG'])){
+              echo $_SESSION['GLOBAL-MSG'];
+              unset($_SESSION['GLOBAL-MSG']);
+            }
             if(isset($_SESSION['SIGNUP-MSG'])){
               echo $_SESSION['SIGNUP-MSG'];
               unset($_SESSION['SIGNUP-MSG']);

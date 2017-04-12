@@ -7,6 +7,7 @@
   $current_page = "profile";
   $notificationBoxContent = "";
   $emailError = "";
+  $activeTab = 1;
 
   // fetch state list for select control
   $state_query = "select State_ID,State_Name from shri_carpool_states where Country_ID=105 ORDER BY State_Name";
@@ -17,7 +18,27 @@
 
   // Handle delete Account
   if(isset($_POST['delete-btn'])){
-    echo "deleted";
+    if(md5($_POST['pwd'])==$row['password']){
+
+      if(mysqli_query($conn,"update shri_carpool_users set is_deleted='1' where user_id={$row['user_id']}")){
+        // Mark user directory as deleted.
+        if(is_dir('users/'.$row['user_id']) && file_exists('users/'.$row['user_id'])){
+          rename('users/'.$row['user_id'],'users/del-'.$row['user_id']) or die("Cannot delete de file");
+        }
+        unset($_SESSION['USER_ID']);
+        header("Location:login.php");
+        $_SESSION['GLOBAL-MSG'] = createAlert("success","Account deleted successfully !");
+      }
+      else{
+        $notificationBoxContent = createAlert("error","Technical issue in deleting your account");
+        $activeTab = 6;
+      }
+
+    }
+    else{
+      $notificationBoxContent = createAlert("error","Cannot delete account, Incorrect password.");
+      $activeTab = 6;
+    }
   }
 
   // Handle update info form
@@ -81,6 +102,7 @@
     else{
       $notificationBoxContent = createAlert("danger","Your old password is incorrect !");
     }
+    $activeTab = 2;
   }
 
   // Handle verify OTP
@@ -100,6 +122,7 @@
     else{
       $notificationBoxContent = createAlert("error","Invalid OTP token");
     }
+    $activeTab = 3;
   }
 ?>
 <?php require_once('includes/header.php'); ?>
@@ -114,16 +137,15 @@
     <div class="col-md-8">
       <div class="notification-box"><?=$notificationBoxContent?></div>
       <ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#home">Edit Profile</a></li>
-    <li><a data-toggle="tab" href="#menu1">Change Password</a></li>
-    <li><a data-toggle="tab" href="#menu2">Verify Details</a></li>
-    <li><a data-toggle="tab" href="#menu3">Add Payment Method</a></li>
-    <li><a data-toggle="tab" href="#menu4">Manage Vehicle</a></li>
-    <li><a data-toggle="tab" href="#menu5">Delete Account</a></li>
+    <li <?php if($activeTab==1) echo "class='active'"?> ><a data-toggle="tab" href="#home">Edit Profile</a></li>
+    <li <?php if($activeTab==2) echo "class='active'"?> ><a data-toggle="tab" href="#menu1">Change Password</a></li>
+    <li <?php if($activeTab==3) echo "class='active'"?> ><a data-toggle="tab" href="#menu2">Verify Details</a></li>
+    <li <?php if($activeTab==4) echo "class='active'"?> ><a data-toggle="tab" href="#menu3">Add Payment Method</a></li>
+    <li <?php if($activeTab==5) echo "class='active'"?> ><a data-toggle="tab" href="#menu4">Manage Vehicle</a></li>
+    <li <?php if($activeTab==6) echo "class='active'"?> ><a data-toggle="tab" href="#menu5">Delete Account</a></li>
   </ul>
-
   <div class="tab-content"> <!-- Edit profile pane -->
-    <div id="home" class="tab-pane fade in active">
+    <div id="home" class="tab-pane fade  <?php if($activeTab==1) echo 'in active'?> ">
       <h3>Update Information</h3>
 
       <div class="row"> <!-- main row -->
@@ -246,7 +268,7 @@
       </div> <!-- row end -->
 
     </div>
-    <div id="menu1" class="tab-pane fade"> <!-- update password pane -->
+    <div id="menu1" class="tab-pane fade <?php if($activeTab==2) echo 'in active'?>"> <!-- update password pane -->
       <h4>Update Password</h4><Br>
       <form class="update-password-form" id="update_password_form" onsubmit="return validatePasswordForm()" method="post">
         <div class="row">
@@ -276,7 +298,7 @@
         </div>
       </form> <!-- pwd form end-->
     </div>
-    <div id="menu2" class="tab-pane fade">
+    <div id="menu2" class="tab-pane fade <?php if($activeTab==3) echo 'in active'?>">
       <h4> Verify Account </h4><br>
       <div class="row">
         <div class="col-md-12">
@@ -334,20 +356,25 @@
             <div class="panel-heading">Upload ID Proof</div>
             <div class="panel-body"> </div>
           </div>
+
+          <div class="panel panel-primary">
+            <div class="panel-heading">Upload Drivers License</div>
+            <div class="panel-body"> </div>
+          </div>
         </div>
       </div>
 
     </div>
 
-    <div id="menu3" class="tab-pane fade">
+    <div id="menu3" class="tab-pane fade <?php if($activeTab==4) echo 'in active'?>">
       <h4> Add Payment Method</h4><br>
     </div>
 
-    <div id="menu4" class="tab-pane fade">
+    <div id="menu4" class="tab-pane fade <?php if($activeTab==5) echo 'in active'?>">
       <h4> Manage Vehicle </h4><br>
     </div>
 
-    <div id="menu5" class="tab-pane fade">
+    <div id="menu5" class="tab-pane fade <?php if($activeTab==6) echo 'in active'?>">
       <h4> Delete Account </h4><br>
       <div class="row">
         <div class="col-md-4">
