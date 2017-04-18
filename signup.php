@@ -29,11 +29,15 @@ if(isset($_POST['signup-btn'])){
     $password_hash = md5($_POST['password']);
     $insert_query = "insert into shri_carpool_users (first_name,last_name,email,password,gender,dob,mobile,sign_up_ip,registered_on,verification_expiry,verification_sent_stamp) values ('{$_POST['first_name']}','{$_POST['last_name']}','{$_POST['email']}','$password_hash','{$_POST['gender']}','{$_POST['datepicker']}',{$_POST['mobile']},'{$_SERVER['REMOTE_ADDR']}',now(),now() + interval 1 hour,now());";
     $result = mysqli_query($conn,$insert_query);
+    $insert_id = mysqli_insert_id($conn);
     if($result){
       // fetch id to create user directory
       $id_row = mysqli_fetch_assoc(mysqli_query($conn,"select user_id from shri_carpool_users where email='{$_POST['email']}' and is_deleted='0'"));
       mkdir('users/'.$id_row['user_id']) or die("failed to create");
       $recepient = $_POST['email'];
+
+      $rider = mysqli_query($conn,"insert into shri_carpool_riders_profile (user_id) values ($insert_id)") or die("Failed to create rider profile:".mysqli_error($conn));
+      $rider = mysqli_query($conn,"insert into shri_carpool_drivers_profile (user_id) values ($insert_id)") or die("Failed to create driver profile".mysqli_error($conn));
       // Function available in functions.php
       $status = sendVerificationMail($recepient,$conn);
       if($status=="sent"){

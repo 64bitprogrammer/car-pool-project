@@ -37,4 +37,28 @@ if(isset($_GET['action']) && $_GET['action']=="sendOTP"){
   }
 }
 
+if(isset($_GET['action']) && $_GET['action']=="getModel"){
+  $result = mysqli_query($conn,"select * from shri_carpool_vehicle_model where make_id = {$_GET['id']}");
+  echo "<option value=''>Select model</option>";
+   while($row = mysqli_fetch_assoc($result)){
+     echo "<option value='$row[model_id]'>$row[model_name]</option>";
+   }
+}
+
+if(isset($_POST['action']) && $_POST['action']=="getOldModelNumber"){
+  if($res = mysqli_query($conn,"select * from shri_carpool_vehicle_model where make_id={$_POST['make_id']}")){
+
+    ?>
+      <option value="">Select State</option>
+    <?php
+    while($row=mysqli_fetch_assoc($res)){
+      ?>
+        <option <?php if($row['model_id']==$_POST['old_model_id']) echo 'selected';?> value="<?=$row['model_id']?>"> <?=$row['model_name']?> </option>
+      <?php
+    }
+  }
+  else{
+    echo 'false';
+  }
+}
 ?>

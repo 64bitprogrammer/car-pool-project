@@ -7,14 +7,20 @@
   $current_page = "profile";
   $notificationBoxContent = "";
   $emailError = "";
-  $activeTab = 1;
+  $activeTab = 5;
 
   // fetch state list for select control
   $state_query = "select State_ID,State_Name from shri_carpool_states where Country_ID=105 ORDER BY State_Name";
   $state_result = mysqli_query($conn,$state_query);
 
+  // fetch vehicle make
+  $vehicle_make = mysqli_query($conn,"select * from shri_carpool_vehicle_make where is_deleted='0'");
+
   $result = mysqli_query($conn,"select * from shri_carpool_users where user_id={$_SESSION['USER_ID']} and is_deleted='0'");
   $row = mysqli_fetch_assoc($result);
+
+  $client_vehicle = mysqli_query($conn,"select * from shri_carpool_drivers_profile where user_id={$_SESSION['USER_ID']}");
+  $veh = mysqli_fetch_assoc($client_vehicle);
 
   // Handle delete Account
   if(isset($_POST['delete-btn'])){
@@ -123,6 +129,50 @@
       $notificationBoxContent = createAlert("error","Invalid OTP token");
     }
     $activeTab = 3;
+  }
+
+  // Handle ID upload
+  if(isset($_POST['id_upload_btn'])){
+    $activeTab = 3;
+    //[todo] Perform basic image validations
+    $front = time()."_".$_FILES['id_front']['name'];
+    $back = time()."_".$_FILES['id_back']['name'];
+    $url1 = 'id-proofs/'.$front;
+    $url2 = 'id-proofs/'.$back;
+
+    $stat1 = move_uploaded_file($_FILES['id_front']['tmp_name'], $url1);
+    $stat2 = move_uploaded_file($_FILES['id_back']['tmp_name'], $url1);
+
+    if($stat1 && $stat2){
+      // File upload success
+      $updateQuery = "update shri_carpool_users set id_front_image='$front', id_back_image='$back' ,id_type='{$_POST{'id_type'}}', id_verified='1' where user_id={$_SESSION['USER_ID']} and is_deleted='0'";
+      if(mysqli_query($conn,$updateQuery)){
+        $notificationBoxContent = createAlert("info","ID Verification application sent successfully");
+        // Refresh row data
+        $result = mysqli_query($conn,"select * from shri_carpool_users where user_id={$_SESSION['USER_ID']} and is_deleted='0'");
+        $row = mysqli_fetch_assoc($result);
+      }
+      else{
+          $notificationBoxContent = createAlert("danger","Failed to update image data: ".mysqli_error($conn));
+      }
+    }
+    else{
+      // File upload failure
+      $notificationBoxContent = createAlert("danger","Failed to upload image");
+    }
+  }
+
+  // Handle vehicle update
+  if(isset($_POST['update-vehicle-btn'])){
+    $activeTab=5;
+    if(mysqli_query($conn,"update shri_carpool_drivers_profile set vehicle_number='{$_POST['vehicle_number']}', vehicle_make_id={$_POST['make']}, vehicle_model_id={$_POST['model']}, model_year={$_POST['model_year']}")){
+      $notificationBoxContent = createAlert("success","Upadted vehicle data successfully !");
+      $client_vehicle = mysqli_query($conn,"select * from shri_carpool_drivers_profile where user_id={$_SESSION['USER_ID']}");
+      $veh = mysqli_fetch_assoc($client_vehicle);
+    }
+    else{
+      $notificationBoxContent = createAlert("error","Could not update vehicle data !".mysqli_error($conn));
+    }
   }
 ?>
 <?php require_once('includes/header.php'); ?>
@@ -354,7 +404,61 @@
 
           <div class="panel panel-primary">
             <div class="panel-heading">Upload ID Proof</div>
-            <div class="panel-body"> </div>
+            <div class="panel-body">
+              <div class="row">
+                <?php if($row['id_verified']=='0'){?>
+                <form method="post" name="id_upload" id="id_upload" onsubmit="return validateIdUpload()" enctype="multipart/form-data">
+                <div class="col-md-6">
+
+                  <div class="from-group">
+                    <select id="id_type" name="id_type" class="form-control">
+                      <option value="" <?php if($row['id_type']=='na') echo 'selected'?> >Select type of ID </option>
+                      <option value="voter" <?php if($row['id_type']=='voter') echo 'selected'?>>Voter Card</option>
+                      <option value="aadhar" <?php if($row['id_type']=='aadhar') echo 'selected'?>>Aadhar Card</option>
+                      <option value="ration" <?php if($row['id_type']=='ration') echo 'selected'?>>Ration Card</option>
+                      <option value="pan" <?php if($row['id_type']=='pan') echo 'selected'?>>Pan Card</option>
+                      <option value="other" <?php if($row['id_type']=='other') echo 'selected'?>>Other</option>
+                    </select>
+                    <span id="id-type-error" class="text-danger"></span>
+                  </div><br>
+
+                  <div class="form-group">
+                    <label for="id_front">ID Front View </label>
+                    <input class="" type="file" name="id_front" id="id_front" />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="id_back">ID Back View </label>
+                    <input class="" type="file" name="id_back" id="id_back" />
+                    <span class="text-danger" id="id_image_help"></span>
+                  </div>
+
+                  <div class="form-group col-md-8">
+                    <button class="form-control btn btn-primary" type="submit" name="id_upload_btn" id="id_upload_btn" value="101">Upload ID</button>
+                  </div>
+
+                </div>
+                <div class="col-md-6">
+                </div>
+              </form>
+              <?php }
+              else if($row['id_verified']=='1'){
+                ?>
+                <div class="col-md-12">
+                  <h5 class="text-warning"> <span class="glyphicon glyphicon-info-sign text-warning"></span> Your ID verification application has been submitted and is currently pending approval.</h5>
+                </div>
+                <?php
+              }
+              else{
+                ?>
+                <div class="col-md-12">
+                  <h5 class=""> <span class="glyphicon glyphicon-ok text-success"></span> Your ID verification is complete. </h5>
+                </div>
+                <?php
+              }
+              ?>
+            </div> <!-- End of id uplaod row -->
+            </div>
           </div>
 
           <div class="panel panel-primary">
@@ -372,6 +476,72 @@
 
     <div id="menu4" class="tab-pane fade <?php if($activeTab==5) echo 'in active'?>">
       <h4> Manage Vehicle </h4><br>
+      <div class="row">
+        <form method="post" name="vehicle-form" id="vehicle-form" onsubmit="return validateVehicleForm()">
+        <div class="col-md-3">
+
+          <div class="form-group">
+            <label for="make">Vehicle Make</label>
+            <select class="form-control" name="make" id="make">
+              <option value="">Select make </option>
+              <?php
+                while($make_row = mysqli_fetch_assoc($vehicle_make)){
+                  ?>
+                  <option <?php if($veh['vehicle_make_id']==$make_row['make_id'])echo 'selected'; ?> value="<?=$make_row['make_id']?>"><?=$make_row['make']?></option>
+                  <?php
+                }
+              ?>
+            </select>
+            <span class="text-danger" id="make_help_text"></span>
+          </div>
+          <br>
+          <div class="form-group">
+            <label for="vehicle_number">Vehicle number</label>
+            <input type="text" class="form-control" id="vehicle_number" name="vehicle_number" value="<?=$veh['vehicle_number']?>">
+            <span class="text-danger" id="vehicle_number_help_text"></span>
+          </div>
+          <br>
+          <div class="form-group  col-md-10">
+            <button type="submit" class="form-control btn btn-primary" name="update-vehicle-btn" id="update-vehicle-btn">Add Vehicle</button>
+          </div>
+
+        </div>
+
+        <div class="col-md-3">
+
+          <div class="form-group">
+            <label for="model">Vehicle Model</label>
+            <select class="form-control" name="model" id="model">
+              <option value="">Select model </option>
+            </select>
+            <span class="text-danger" id="model_help_text"></span>
+          </div>
+          <br>
+          <div class="form-group">
+            <label for="model_year">Model Year</label>
+            <select name="model_year" id="model_year" class="form-control">
+              <option value="">Select year</option>
+              <?php
+                $maxYear = intval(date('Y'));
+                $yr_cnt = 10;
+                while($yr_cnt>0){
+                  ?>
+                  <option <?php if($veh['model_year']==$maxYear) echo 'selected' ?> value='<?=$maxYear?>'><?=$maxYear?></option>
+                  <?php
+                  $maxYear--;
+                  $yr_cnt--;
+                }
+              ?>
+            </select>
+            <span class="text-danger" id="model_year_help_text"></span>
+          </div>
+
+        </div>
+
+        <div class="col-md-6">
+        </div>
+      </form>
+      </div> <!-- end of vehicle row -->
     </div>
 
     <div id="menu5" class="tab-pane fade <?php if($activeTab==6) echo 'in active'?>">
@@ -385,6 +555,7 @@
             </div>
             <div class="form-group">
               <button type="submit" name="delete-btn" class="btn btn-danger">Delete My Account</button>
+              <span class="help-block">Account once deleted, cannot be restored back.</span>
             </div>
           </form>
         </div>
@@ -402,10 +573,27 @@
 <?php require_once('includes/footer.php'); ?>
 
 <script>
+var oldModelID = <?=$veh['vehicle_model_id']?>;
 $(document).ready(function (){
-  $("#old_password").val("Admin@123");
-  $("#new_password").val("Admin@123");
-  $("#confirm_password").val("Admin@123");
+  var oldMake = $("#make").val();
+  // Load vehicle model
+  $.ajax({
+    type: "POST",
+    url: "common-ajax.php",
+    data:'make_id='+oldMake+'&old_model_id='+oldModelID+'&action=getOldModelNumber',
+    success: function(data){
+      if(data!='false'){
+          $("#model").html(data);
+      }
+      else{
+        alert('Error fetching model id :'+data); //[todo] fix properly
+      }
+    },
+    error:function (data){
+      $("#error_report").html(data);
+    }
+
+  });
 });
 // validate update pwd form
 function validatePasswordForm (){
@@ -621,4 +809,102 @@ function confirmDelete(){
   }
 }
 
+// Handle ID upload
+function validateIdUpload(){
+  $("#id-type-error").html('');
+  $("#id_image_help").html('');
+  var front = document.getElementById('id_front').files;
+  var back = document.getElementById('id_back').files;
+
+  if($("#id_type").val()==""){
+    $("#id-type-error").html("Please select type of ID");
+    return false;
+  }
+
+  if($("#id_front").val() != "" && $("#id_back").val()!="")
+	{
+		$("#id_image_help").html("Files Selected");
+		var maxFileSize = 2048000;
+		var frontFileSize = front[0].size;
+		var frontFileName = front[0].name;
+		var frontArr = frontFileName.split(".");
+		var frontFileExtension = frontArr[1];
+
+    var backFileSize = back[0].size;
+		var backFileName = back[0].name;
+		var backArr = backFileName.split(".");
+		var backFileExtension = backArr[1];
+
+		if(((frontFileExtension == "jpg" || frontFileExtension == "png" || frontFileExtension == "jpeg") && frontFileSize <=maxFileSize && frontFileSize >0) && ((backFileExtension == "jpg" || backFileExtension == "png" || backFileExtension == "jpeg") && backFileSize <=maxFileSize && backFileSize >0)){
+			$("#id_image_help").html("");
+			return true;
+		}
+		else{
+			if(frontFileExtension != "jpg" || frontFileExtension == "png" || backFileExtension != "jpg" || backFileExtension == "png" )
+				$("#id_image_help").html("Invalid image format");
+			else if(frontFileSize>maxFileSize || backFileSize>maxFileSize)
+				$("#id_image_help").html("File size should not exceed 2MB");
+			else if(frontFileSize<=0 || backFileSize<=0)
+				$("#id_image_help").html("Invalid file size.");
+
+			return false;
+		}
+	}
+	else{
+		$("#id_image_help").html("Please select both files");
+		return false;
+	}
+}
+
+$("#make").change(function(){
+  if(this.value!=""){
+    var filename = "common-ajax.php?action=getModel&id="+this.value;
+    $.ajax({
+      url: filename,
+      type: 'POST',
+      success: function (data, textStatus, xhr){
+        $("#model").html(data);
+      },
+      error: function (data, textStatus, xhr){
+        alert("technical error"+data+" "+textStatus);
+      }
+    });
+  }
+  else{
+    $("#model").html("<option value=''>Select model</option>");
+  }
+});
+
+function validateVehicleForm(){
+
+  $("#make_help_text").html("");
+  $("#model_help_text").html("");
+  $("#vehicle_number_help_text").html("");
+  $("#model_year_help_text").html("");
+
+  if($("#make").val()==""){
+    $("#make_help_text").html("Please select vehicle make");
+    $("#make").focus();
+    return false;
+  }
+
+  if($("#model").val()==""){
+    $("#model_help_text").html("Please select vehicle model");
+    $("#model").focus();
+    return false;
+  }
+
+  if($("#vehicle_number").val()==""){
+    $("#vehicle_number_help_text").html("Please enter vehicle number");
+    $("#vehicle_number").focus();
+    return false;
+  }
+
+  if($("#model_year").val()==""){
+    $("#model_year_help_text").html("Please select model year");
+    $("#model_year").focus();
+    return false;
+  }
+  return true;
+}
 </script>
